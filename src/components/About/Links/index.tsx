@@ -43,7 +43,7 @@ const Links = () => {
         }
         icon={share}
       >
-        硬件更新
+        版本更新
       </Link>
       <Link
         onClick={() =>

@@ -5,13 +5,13 @@ import MenuButton from "src/components/MenuButton";
 const Style = () => {
   return (
     <>
-      <View className="h-[182px] grid  grid-cols-2 gap-x-[12px]">
-        <MenuButton upText="Chord Patterns" downText="和弦样式" />
-        <MenuButton upText="Drum Machine Patterns" downText="鼓机样式" />
+      <View className="h-[158px] grid  grid-cols-2 gap-x-[12px]">
+        <MenuButton upText="Chord" downText="和弦" />
+        <MenuButton upText="Drum Machine" downText="鼓机" />
       </View>
 
       <View className="h-[126px] grid  grid-cols-2 gap-x-[12px]">
-        <MenuButton upText="Musical" downText="乐器更换" />
+        <MenuButton upText="Musical Instrument" downText="乐器" />
         <MenuButton upText="Light" downText="灯光" />
       </View>
     </>

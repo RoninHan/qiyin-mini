@@ -29,7 +29,7 @@ const DeviceSelect = () => {
         inactiveTitleClass="!text-white"
         onChange={(e) => setSelected(e.text)}
         options={[
-          { text: "默认排序", value: "a" },
+          { text: "设备连接", value: "a" },
           { text: "好评排序", value: "b" },
           { text: "销量排序", value: "c" },
         ]}
@@ -37,7 +37,7 @@ const DeviceSelect = () => {
         title={
           <View className="flex flex-row gap-x-2  items-center ">
             <Image src={phone} className="w-[21px] h-5" />
-            <Text className=" text-xs">默认排序</Text>
+            <Text className=" text-xs">设备连接</Text>
           </View>
         }
       />

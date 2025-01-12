@@ -23,7 +23,7 @@ const Category = () => {
       <MenuButton
         menuIcon={settings}
         upText="Chord Mapping"
-        downText="和旋映射"
+        downText="和弦映射"
       />
       <MenuButton
         onClick={() => setRateOpen(true)}

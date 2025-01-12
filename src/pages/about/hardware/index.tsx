@@ -5,7 +5,7 @@ import Navbar from "src/components/Navbar";
 const Index = () => {
   return (
     <View className="bg-black min-h-screen w-full flex flex-col">
-      <Navbar title="硬件更新" />
+      {/* <Navbar title="硬件更新" /> */}
 
       <View className="flex-1 flex flex-col px-4">
         <Cell.Group>

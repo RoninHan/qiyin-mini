@@ -12,7 +12,7 @@ import StatBar from "./StatBar";
 const Rate = () => {
   return (
     <View className="bg-black overflow-hidden h-screen w-full flex flex-col">
-      <Navbar title="评分" />
+      {/* <Navbar title="评分" /> */}
       <View className="px-[15px] flex-1 flex flex-col">
         {/*设备选择 */}
         <DeviceSelect />

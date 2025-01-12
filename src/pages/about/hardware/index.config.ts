@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: "硬件更新",
+  navigationBarTitleText: "版本更新",
 });
