@@ -12,7 +12,6 @@ import Stat from "./Stat";
 import Style from "./Style";
 import ToneModal from "./ToneModal";
 import { useEffect, useState } from "react";
-import { get } from "utils/http";
 import Taro, { useDidShow } from "@tarojs/taro";
 
 const GuitarStatus = () => {
@@ -20,9 +19,15 @@ const GuitarStatus = () => {
   const [deviceData, setDeviceData] = useState<any>([]);
   const getSetting = async () => {
     // 获取设置
-    let res = await get("/api/setting");
-    setDeviceId(res.data[0].device_id);
-    Taro.setStorageSync("device_id", res.data[0]);
+    Taro.request({
+      url: "https://www.axiarz.com/api/setting",
+      method: "GET",
+      success: (res) => {
+        console.log(res);
+        setDeviceId(res.data.data.device_id);
+        Taro.setStorageSync("device_id", res.data.data.device_id);
+      },
+    });
   }
   useEffect(() => {
     getSetting()
@@ -41,7 +46,7 @@ const GuitarStatus = () => {
           deviceId: device.deviceId,
           name: device.name,
         });
-          setDeviceData(devs);
+        setDeviceData(devs);
       })
       // 找到要搜索的设备后，及时停止扫描
       Taro.stopBluetoothDevicesDiscovery()

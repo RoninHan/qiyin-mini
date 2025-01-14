@@ -4,23 +4,31 @@ import FooterBar from "../FooterBar";
 import Category from "./Category";
 
 import List from "./List";
-import { get } from "utils/http";
 import { useEffect, useState } from "react";
+import Taro from "@tarojs/taro";
 
 const Song = () => {
   const [songList, setSongList] = useState<any[]>([]);
   const [songTypes, setSongTypes] = useState<any[]>([]);
 
   const getSongType = async () => {
-    // 获取歌曲分类
-    let res = await get("/api/song/type");
-    setSongTypes(res.data);
+    Taro.request({
+      url: "https://www.axiarz.com/api/song_type",
+      method: "GET",
+      success: (res) => {
+        setSongTypes(res.data.data);
+      },
+    });
   }
 
   const getSong = async () => {
-    // 获取歌曲
-    let res = await get("/api/song");
-    setSongList(res.data);
+    Taro.request({
+      url: "https://www.axiarz.com/api/song",
+      method: "GET",
+      success: (res) => {
+        setSongList(res.data.data);
+      },
+    });
   }
 
   useEffect(() => {
@@ -34,9 +42,9 @@ const Song = () => {
       {/* <Navbar title="歌曲" /> */}
       <View className="flex-1 flex flex-col gap-y-[12px]">
         {/* 歌曲分类 */}
-        <Category typeList={songTypes} onTypeChange={function (type: string): void {
+        <Category typeList={songTypes} onTypeChange={function (id: string): void {
           throw new Error("Function not implemented.");
-        } }  />
+        }} />
         {/* 歌曲List */}
         <List />
       </View>

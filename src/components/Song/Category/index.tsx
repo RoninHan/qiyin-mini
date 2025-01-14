@@ -10,7 +10,7 @@ interface CategoryProps {
   onTypeChange: (type: string) => void;
 }
 
-const Category = (props:CategoryProps) => {
+const Category = (props: CategoryProps) => {
   const { typeList, onTypeChange } = props;
 
 
@@ -31,8 +31,8 @@ const Category = (props:CategoryProps) => {
       {/* 歌曲分类 */}
       <View className=" grid grid-cols-3 h-[69px]  gap-x-[10px]">
         {
-          typeList.map((item)=>{
-            return <MenuButton key={item.id} upText={item.name} downText={item.name} onClick={()=>onTypeChange(item.name)} />
+          typeList.map((item) => {
+            return <MenuButton key={item.id} upText={item.en_name} downText={item.name} onClick={() => onTypeChange(item.id)} />
 
           })
         }
