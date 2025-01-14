@@ -5,7 +5,15 @@ import { CSSProperties } from "react";
 import MenuButton from "src/components/MenuButton";
 import "./index.less";
 
-const Category = () => {
+interface CategoryProps {
+  typeList: any[];
+  onTypeChange: (type: string) => void;
+}
+
+const Category = (props:CategoryProps) => {
+  const { typeList, onTypeChange } = props;
+
+
   return (
     <View className="w-full px-[15px]  flex flex-col gap-y-[12px]">
       <View
@@ -22,9 +30,15 @@ const Category = () => {
       </View>
       {/* 歌曲分类 */}
       <View className=" grid grid-cols-3 h-[69px]  gap-x-[10px]">
-        <MenuButton upText="MANDARIN" downText="国语" />
+        {
+          typeList.map((item)=>{
+            return <MenuButton key={item.id} upText={item.name} downText={item.name} onClick={()=>onTypeChange(item.name)} />
+
+          })
+        }
+        {/* <MenuButton upText="MANDARIN" downText="国语" />
         <MenuButton upText="CANTONSES" downText="粤语" />
-        <MenuButton upText="ENGLISH" downText="英语" />
+        <MenuButton upText="ENGLISH" downText="英语" /> */}
       </View>
 
       <View className="grid grid-cols-2  h-[69px]  gap-x-[9px]">

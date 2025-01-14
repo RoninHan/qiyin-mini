@@ -11,8 +11,79 @@ import RateModal from "./RateModal";
 import Stat from "./Stat";
 import Style from "./Style";
 import ToneModal from "./ToneModal";
+import { useEffect, useState } from "react";
+import { get } from "utils/http";
+import Taro, { useDidShow } from "@tarojs/taro";
 
 const GuitarStatus = () => {
+  const [deviceId, setDeviceId] = useState("");
+  const [deviceData, setDeviceData] = useState<any>([]);
+  const getSetting = async () => {
+    // 获取设置
+    let res = await get("/api/setting");
+    setDeviceId(res.data[0].device_id);
+    Taro.setStorageSync("device_id", res.data[0]);
+  }
+  useEffect(() => {
+    getSetting()
+  }, []);
+
+  useDidShow(() => {
+    Taro.onBluetoothDeviceFound((res) => {
+      res.devices.forEach((device) => {
+        // 这里可以做一些过滤
+        console.log('Device Found', device)
+        if (device.name === "") {
+          return;
+        }
+        let devs = deviceData;
+        devs.push({
+          deviceId: device.deviceId,
+          name: device.name,
+        });
+          setDeviceData(devs);
+      })
+      // 找到要搜索的设备后，及时停止扫描
+      Taro.stopBluetoothDevicesDiscovery()
+    })
+
+    Taro.openBluetoothAdapter({
+      mode: 'central'
+    });
+
+    Taro.onBLECharacteristicValueChange((res) => {
+      console.log('onBLECharacteristicValueChange', res)
+    })
+  });
+
+  const lineDevice = (deviceId: string) => {
+    setDeviceId(deviceId);
+    // 这里添加你的设备连接逻辑
+    bleGattLink(deviceId);
+  }
+
+  const bleGattLink = (deviceId: string) => {
+    Taro.createBLEConnection({
+      deviceId, // 搜索到设备的 deviceId
+      success: () => {
+        // 模拟设备链接成功
+        console.log('createBLEConnection success');
+        setDeviceId(deviceId);
+        // 连接成功，获取服务
+        Taro.notifyBLECharacteristicValueChange({
+          state: true,
+          deviceId,
+          serviceId: "000000ff-0000-1000-8000-00805f9b34fb",
+          characteristicId: "0000ff01-0000-1000-8000-00805f9b34fb",
+          success(res) {
+            console.log('notifyBLECharacteristicValueChange success', res.errMsg)
+          }
+        });
+      }
+    })
+  }
+
+
   return (
     <Provider>
       {/* 音调弹出 */}
