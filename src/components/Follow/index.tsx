@@ -7,9 +7,29 @@ import Lyrics from "./Lyrics";
 import { Provider } from "jotai";
 import "./index.less";
 import Settings from "./Settings";
+import Taro from "@tarojs/taro";
+
+interface FollowProps {
+  id: number;
+}
 
 // 弹唱跟随页面
-const Follow = () => {
+const Follow = (props: FollowProps) => {
+  const { id } = props;
+
+  const getLyric = async () => {
+    Taro.request({
+      url: "https://www.axiarz.com/api/lyric",
+      method: "GET",
+      data: {
+        id,
+      },
+      success: (res) => {
+        console.log(res);
+      },
+    });
+  }
+
   return (
     <Provider>
       <Settings />

@@ -46,7 +46,7 @@ const Song = () => {
           throw new Error("Function not implemented.");
         }} />
         {/* 歌曲List */}
-        <List />
+        <List list={songList} />
       </View>
       <FooterBar />
     </View>
