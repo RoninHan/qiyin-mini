@@ -49,7 +49,7 @@ const List = (props: ListProps) => {
           <View className="flex flex-col gap-y-3">
             {
               list.map((item) => {
-                return <SongItem key={item.id} singer={item.singer} title={item.name} />
+                return <SongItem key={item.id} singer={item.singer} title={item.name} id={item.id} />
               })
             }
             {/* <SongItem singer="陈" title="旅行的意义" />
@@ -61,7 +61,7 @@ const List = (props: ListProps) => {
         <Tabs.TabPane title="最新榜" >
           {
             list.map((item) => {
-              return <SongItem key={item.id} singer={item.singer} title={item.name} />
+              return <SongItem key={item.id} singer={item.singer} title={item.name} id={item.id} />
             })
           }
         </Tabs.TabPane>

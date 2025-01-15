@@ -8,6 +8,7 @@ import { Provider } from "jotai";
 import "./index.less";
 import Settings from "./Settings";
 import Taro from "@tarojs/taro";
+import { useEffect, useState } from "react";
 
 interface FollowProps {
   id: number;
@@ -17,18 +18,25 @@ interface FollowProps {
 const Follow = (props: FollowProps) => {
   const { id } = props;
 
+  const [lyric, setLyric] = useState("");
+
   const getLyric = async () => {
     Taro.request({
-      url: "https://www.axiarz.com/api/lyric",
+      url: "https://www.axiarz.com/api/lyrics/find_lyrics_by_song_id/" + id,
       method: "GET",
-      data: {
-        id,
-      },
       success: (res) => {
-        console.log(res);
+        setLyric(res.data.data.lyric);
       },
     });
   }
+
+  useEffect(() => {
+    getLyric();
+  }, []);
+
+  useEffect(() => {
+    console.log(lyric);
+  }, [lyric]);
 
   return (
     <Provider>
@@ -44,7 +52,7 @@ const Follow = (props: FollowProps) => {
           {/* 歌词信息 */}
           <Info />
           {/* 歌词部分 */}
-          <Lyrics />
+          <Lyrics lrc={lyric} />
         </View>
       </View>
     </Provider>

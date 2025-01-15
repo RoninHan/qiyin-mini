@@ -1,11 +1,12 @@
 import { Text, View } from "@tarojs/components";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 
 import { Lrc } from "react-lrc";
 
 import { testlrc } from "utils/utils";
 import { Mark } from "../Mark";
 import Taro from "@tarojs/taro";
+import useTimer from "./use_timer";
 
 
 
@@ -40,49 +41,6 @@ const generateContent = (text: string) => {
 
 // 歌词
 const MarkText = ({ line, active }: { line: string; active: boolean }) => {
-  const deviceId = Taro.getStorageSync("device_id");
-  const send = () => {
-    if (!deviceId) {
-      //判断是否存在，不存在就提示
-      console.error('error:require deviceid');
-      return;
-    }
-
-    let hexString = '';
-
-    let sendBuf = hexToBuffer(hexString);
-    Taro.writeBLECharacteristicValue({
-      // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
-      deviceId,
-      serviceId: "000000ff-0000-1000-8000-00805f9b34fb",
-      characteristicId: "0000ff01-0000-1000-8000-00805f9b34fb",
-      // 这里的value是ArrayBuffer类型
-      value: sendBuf,
-      success(res) {
-        console.log('writeBLECharacteristicValue success', res.errMsg)
-      }
-    })
-  }
-  
-  const hexToBuffer = (hex: string): ArrayBuffer => {
-      const pairs = hex.match(/[\s\S]{1,2}/g) || [];
-      const decimalArray = pairs.map(pair => parseInt(pair, 16));
-      const arr = new Uint8Array(decimalArray.length);
-      for (let i = 0; i < decimalArray.length; i++) {
-        arr[i] = decimalArray[i];
-      }
-      return arr.buffer;
-    }
-  
-    const ab2hex = (buffer: ArrayBuffer) => {
-      let hexArr = Array.prototype.map.call(
-        new Uint8Array(buffer),
-        function (bit) {
-          return ('00' + bit.toString(16)).slice(-2)
-        }
-      )
-      return hexArr.join('');
-    }
 
   const content = useMemo(() => generateContent(line), [line]);
   return (
@@ -97,12 +55,121 @@ const MarkText = ({ line, active }: { line: string; active: boolean }) => {
   );
 };
 
-const Lyrics = () => {
+interface LyricsProps {
+  lrc: string;
+}
+
+const parseLrc = (lrc: string) => {
+  const lines = lrc.split("\n");
+  const parsedLines = lines.map((line) => {
+    const match = line.match(/\[(\d+):(\d+\.\d+)\](.*)/);
+    if (match) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseFloat(match[2]);
+      const time = minutes * 60 + seconds;
+      const text = match[3];
+      return { time, text };
+    }
+    return null;
+  }).filter(line => line !== null);
+  return parsedLines;
+};
+
+const Lyrics = (props: LyricsProps) => {
+  const { lrc } = props;
+  const {
+    currentMillisecond,
+    setCurrentMillisecond,
+    reset,
+    play,
+    pause
+  } = useTimer(4);
+
+  const parsedLrc = useMemo(() => parseLrc(lrc), [lrc]);
+
+  const deviceId = Taro.getStorageSync("device_id");
+  const send = (str: string) => {
+    if (!deviceId) {
+      //判断是否存在，不存在就提示
+      console.error('error:require deviceid');
+      return;
+    }
+
+    let hexString = stringToHex(str);
+
+    let sendBuf = hexToBuffer(hexString);
+    Taro.writeBLECharacteristicValue({
+      // 这里的 deviceId 需要在 getBluetoothDevices 或 onBluetoothDeviceFound 接口中获取
+      deviceId,
+      serviceId: "000000ff-0000-1000-8000-00805f9b34fb",
+      characteristicId: "0000ff01-0000-1000-8000-00805f9b34fb",
+      // 这里的value是ArrayBuffer类型
+      value: sendBuf,
+      success(res) {
+        console.log('writeBLECharacteristicValue success', res.errMsg)
+      }
+    })
+  }
+
+  const hexToBuffer = (hex: string): ArrayBuffer => {
+    const pairs = hex.match(/[\s\S]{1,2}/g) || [];
+    const decimalArray = pairs.map(pair => parseInt(pair, 16));
+    const arr = new Uint8Array(decimalArray.length);
+    for (let i = 0; i < decimalArray.length; i++) {
+      arr[i] = decimalArray[i];
+    }
+    return arr.buffer;
+  }
+
+  const ab2hex = (buffer: ArrayBuffer) => {
+    let hexArr = Array.prototype.map.call(
+      new Uint8Array(buffer),
+      function (bit) {
+        return ('00' + bit.toString(16)).slice(-2)
+      }
+    )
+    return hexArr.join('');
+  }
+
+  const stringToHex = (str: string) => {
+    return str.split('').map(char => char.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+  }
+
+  useEffect(() => {
+    console.log(lrc)
+  }, [lrc])
+
+  useEffect(() => {
+    play();
+    return () => pause();
+  }, [play, pause]);
+
+  useEffect(() => {
+    Taro.onBLECharacteristicValueChange(function (res) {
+      console.log(ab2hex(res.value))
+      // 接收到就继续
+      play();
+    })
+  }, []);
+
+  useEffect(() => {
+    const currentLine = parsedLrc.find(line => currentMillisecond >= line.time * 1000 && currentMillisecond < (line.time + 1) * 1000);
+    if (currentLine) {
+      const match = currentLine.text.match(/[_#](\d)/);
+      if (match) {
+        pause();
+        send(match[1]);
+      }
+    }
+  }, [currentMillisecond, parsedLrc, pause]);
+
+
+
   return (
     <Lrc
-      lrc={testlrc}
+      lrc={lrc}
       className=" text-center h-[calc(100vh-286px)] mt-[30px] lyrics-shadow "
-      currentMillisecond={0}
+      currentMillisecond={currentMillisecond}
       lineRenderer={({ active, line }) => (
         <MarkText line={line.content} active={active} />
       )}
