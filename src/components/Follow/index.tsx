@@ -10,29 +10,13 @@ import Settings from "./Settings";
 import Taro from "@tarojs/taro";
 import { useEffect, useState } from "react";
 
-interface FollowProps {
-  id: number;
-}
-
 // 弹唱跟随页面
-const Follow = (props: FollowProps) => {
-  const { id } = props;
-
-  const [lyric, setLyric] = useState("");
-
-  const getLyric = async () => {
-    Taro.request({
-      url: "https://www.axiarz.com/api/lyrics/find_lyrics_by_song_id/" + id,
-      method: "GET",
-      success: (res) => {
-        setLyric(res.data.data.lyric);
-      },
-    });
-  }
+const Follow = () => {
 
   useEffect(() => {
-    getLyric();
+    console.log("Follow");
   }, []);
+
 
 
   return (
@@ -49,7 +33,7 @@ const Follow = (props: FollowProps) => {
           {/* 歌词信息 */}
           <Info />
           {/* 歌词部分 */}
-          <Lyrics lrc={lyric} />
+          <Lyrics />
         </View>
       </View>
     </Provider>
