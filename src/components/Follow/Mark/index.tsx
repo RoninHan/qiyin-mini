@@ -30,14 +30,14 @@ const Mark = ({ type, isActive, children }: MarkProps) => {
   return (
     <View className="text-center relative">
       <View
-        className={`w-8 h-8 bg-[#FFBD5A]/40  text-center leading-8 rounded-[5px] tracking-normal ${
+        className={`w-8 h-8 bg-[#FFBD5A]/40  text-center leading-8 rounded-[5px] tracking-normal mx-2 ${
           isActive ? "scale-animation" : ""
         }`}
       >
         {children}
       </View>
       <View
-        className=" absolute left-2 bottom-[60%]"
+        className="w-8 h-8 absolute mx-2 bottom-[100%] flex justify-center items-center"
         style={{
           color: color[type],
         }}

@@ -1,7 +1,7 @@
 import { Text, View } from "@tarojs/components";
-import { ReactNode, useEffect, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 
-import { Lrc } from "react-lrc";
+import { Lrc, useRecoverAutoScrollImmediately } from "react-lrc";
 
 import { testlrc } from "utils/utils";
 import { Mark } from "../Mark";
@@ -12,11 +12,11 @@ import useTimer from "./use_timer";
 
 const generateContent = (text: string) => {
   let arr: ReactNode[] = [];
-  const splitText = text.split(/([#].|[_].{2})/g);
-
+  const splitText = text.split(/([#].{2}|[_].{1})/g);
+  // console.log(splitText)
   for (let i = 0; i < splitText.length; i++) {
     const textType = splitText[i].charAt(1);
-
+    
     // #C 为无歌词标记
     if (splitText[i].startsWith("_")) {
       arr.push(<Mark key={i} type={textType} isActive />);
@@ -25,6 +25,7 @@ const generateContent = (text: string) => {
       // 如$C抱，那么抱就会被标记为C
       const textTypeNumber = splitText[i].charAt(1);
       const word = splitText[i].charAt(2);
+      // console.log(word)
       arr.push(
         <Mark key={i} type={textTypeNumber}>
           {word}
@@ -48,7 +49,7 @@ const MarkText = ({ line, active }: { line: string; active: boolean }) => {
       style={{
         color: active ? "#fff" : "rgba(255,255,255,.2)",
       }}
-      className="text-xl flex flex-row tracking-[0.5em] flex-wrap leading-[55px] items-center justify-center"
+      className="text-xl flex flex-row tracking-[0.2em] flex-wrap leading-[55px] items-center justify-center"
     >
       {content}
     </View>
@@ -84,6 +85,10 @@ const Lyrics = (props: LyricsProps) => {
     play,
     pause
   } = useTimer(4);
+
+  const {
+    signal,
+  } = useRecoverAutoScrollImmediately();
 
   const parsedLrc = useMemo(() => parseLrc(lrc), [lrc]);
 
@@ -136,12 +141,7 @@ const Lyrics = (props: LyricsProps) => {
   }
 
   useEffect(() => {
-    console.log(lrc)
-  }, [lrc])
-
-  useEffect(() => {
     play();
-    return () => pause();
   }, [play, pause]);
 
   useEffect(() => {
@@ -156,23 +156,40 @@ const Lyrics = (props: LyricsProps) => {
     const currentLine = parsedLrc.find(line => currentMillisecond >= line.time * 1000 && currentMillisecond < (line.time + 1) * 1000);
     if (currentLine) {
       const match = currentLine.text.match(/[_#](\d)/);
+      console.log(currentLine.text)
       if (match) {
-        pause();
-        send(match[1]);
+        // pause();
+        // send(match[1]);
       }
     }
   }, [currentMillisecond, parsedLrc, pause]);
+
+  const [num, setNum] = useState(0);
+
+  useEffect(() => {
+    let last = Date.now();
+    const timer = setInterval(() => {
+      const now = Date.now();
+      setNum((cm) => cm + (now - last) * 4);
+      console.log("currentMillisecond", num);
+      last = now;
+  }, 97);
+  return () => clearInterval(timer);
+  }, [])  
 
 
 
   return (
     <Lrc
       lrc={lrc}
-      className=" text-center h-[calc(100vh-286px)] mt-[30px] lyrics-shadow "
+      className=" text-center h-[calc(100vh-286px)] mt-[30px] pt-[20px] lyrics-shadow "
       currentMillisecond={currentMillisecond}
+      verticalSpace
       lineRenderer={({ active, line }) => (
         <MarkText line={line.content} active={active} />
       )}
+      recoverAutoScrollSingal={true}
+      recoverAutoScrollInterval={5000}
     />
   );
 };

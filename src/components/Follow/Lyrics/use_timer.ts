@@ -9,14 +9,19 @@ function useTimer(speed = 1) {
     const reset = useCallback(() => setCurrentMillisecond(0), []);
 
     useEffect(() => {
+        console.log("paused", paused);
         if (!paused) {
             let last = Date.now();
-            const timer = window.setInterval(() => {
+            const timer = setInterval(() => {
                 const now = Date.now();
                 setCurrentMillisecond((cm) => cm + (now - last) * speed);
+                console.log("currentMillisecond", currentMillisecond);
                 last = now;
             }, 97);
-            return () => window.clearInterval(timer);
+            return () => {
+                console.log("clearInterval");
+                // clearInterval(timer);
+            }
         }
     }, [paused, speed]);
 

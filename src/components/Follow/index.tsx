@@ -34,9 +34,6 @@ const Follow = (props: FollowProps) => {
     getLyric();
   }, []);
 
-  useEffect(() => {
-    console.log(lyric);
-  }, [lyric]);
 
   return (
     <Provider>
